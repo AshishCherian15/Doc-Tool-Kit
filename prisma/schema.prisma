@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Document {
+  id               String            @id @default(uuid())
+  title            String
+  originalFileName String
+  filePath         String
+  fileSize         Int
+  pageCount        Int
+  thumbnailPath    String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  versions         DocumentVersion[]
+  annotations      Annotation[]
+  ocrResults       OCRResult[]
+  autosaves        Autosave[]
+}
+
+model DocumentVersion {
+  id            String   @id @default(uuid())
+  documentId    String
+  versionNumber Int
+  filePath      String
+  createdAt     DateTime @default(now())
+  document      Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model Annotation {
+  id         String   @id @default(uuid())
+  documentId String
+  pageNumber Int
+  type       String
+  content    String?
+  x          Float
+  y          Float
+  width      Float
+  height     Float
+  color      String?
+  createdAt  DateTime @default(now())
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model OCRResult {
+  id            String   @id @default(uuid())
+  documentId    String
+  pageNumber    Int
+  extractedText String
+  createdAt     DateTime @default(now())
+  document      Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model Autosave {
+  id          String   @id @default(uuid())
+  documentId  String
+  sessionData String
+  updatedAt   DateTime @updatedAt
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
