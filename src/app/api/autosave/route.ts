@@ -1,10 +1,13 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir, readFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import { join } from 'path'
+import { getStorageDir, toStorageRelativePath } from '@/lib/storage-paths'
 
-const AUTOSAVE_DIR = join(process.cwd(), 'storage', 'autosave')
-const EDITED_DIR = join(process.cwd(), 'storage', 'edited')
+const AUTOSAVE_DIR = getStorageDir('autosave')
+const EDITED_DIR = getStorageDir('edited')
 
 // GET /api/autosave?documentId=xxx
 // Returns the last saved annotation session (textNodes/whiteoutBlocks/highlights) as JSON.
@@ -65,7 +68,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        savedTo: `storage/edited/${safeName}`,
+        savedTo: toStorageRelativePath('edited', safeName),
       })
     }
 

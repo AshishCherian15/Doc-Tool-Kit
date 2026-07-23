@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import path from 'path'
 import fs from 'fs'
 import { prisma } from '@/lib/prisma'
+import { getStorageDir, resolveStoragePath } from '@/lib/storage-paths'
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
       decodedFilename = filenameMatch[0]
     }
 
-    const uploadDir = path.join(process.cwd(), 'storage', 'uploads')
+    const uploadDir = getStorageDir('uploads')
     let filePath = path.join(uploadDir, decodedFilename)
 
     // Fallback 1: Database lookup by ID, originalFileName, or filePath substring
@@ -47,9 +48,9 @@ export async function GET(request: NextRequest) {
         })
 
         if (doc?.filePath) {
-          const dbPath = path.isAbsolute(doc.filePath) 
-            ? doc.filePath 
-            : path.join(process.cwd(), doc.filePath)
+          const dbPath = path.isAbsolute(doc.filePath)
+            ? doc.filePath
+            : resolveStoragePath(doc.filePath)
             
           if (fs.existsSync(dbPath)) {
             filePath = dbPath

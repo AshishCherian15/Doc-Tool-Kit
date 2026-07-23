@@ -1,7 +1,9 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { unlink } from 'fs/promises'
-import { join } from 'path'
+import { prisma } from '@/lib/prisma'
+import { resolveStoragePath } from '@/lib/storage-paths'
 
 export async function GET() {
   try {
@@ -31,7 +33,7 @@ export async function DELETE(request: NextRequest) {
 
     // Delete file
     try {
-      await unlink(join(process.cwd(), document.filePath))
+      await unlink(resolveStoragePath(document.filePath))
     } catch (err) {
       console.error('Error deleting file:', err)
     }

@@ -1,9 +1,10 @@
 import { writeFile, unlink, readFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import { getStorageRoot, getStorageDir, resolveStoragePath, toStorageRelativePath } from '@/lib/storage-paths'
 
 export class StorageService {
-  private static baseDir = join(process.cwd(), 'storage')
+  private static baseDir = getStorageRoot()
 
   static async ensureDir(subDir: string): Promise<string> {
     const fullPath = join(this.baseDir, subDir)
@@ -18,22 +19,24 @@ export class StorageService {
     filename: string,
     subDir: 'uploads' | 'edited' | 'exports' | 'thumbnails' | 'autosave' | 'ocr'
   ): Promise<string> {
-    const dir = await this.ensureDir(subDir)
-    // Persist relative paths so API routes can serve files without leaking absolute system paths.
+    const dir = await getStorageDir(subDir)
+    if (!existsSync(dir)) {
+      await mkdir(dir, { recursive: true })
+    }
     const filepath = join(dir, filename)
     await writeFile(filepath, buffer)
-    return `storage/${subDir}/${filename}`
+    return toStorageRelativePath(subDir, filename)
   }
 
   static async deleteFile(relativePath: string): Promise<void> {
-    const fullPath = join(process.cwd(), relativePath)
+    const fullPath = resolveStoragePath(relativePath)
     if (existsSync(fullPath)) {
       await unlink(fullPath)
     }
   }
 
   static async readFile(relativePath: string): Promise<Buffer> {
-    const fullPath = join(process.cwd(), relativePath)
+    const fullPath = resolveStoragePath(relativePath)
     return await readFile(fullPath)
   }
 

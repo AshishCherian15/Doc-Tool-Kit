@@ -1,9 +1,12 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { PDFDocument } from 'pdf-lib'
+import { getStorageDir, toStorageRelativePath } from '@/lib/storage-paths'
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +25,7 @@ export async function POST(request: NextRequest) {
     const pageCount = pdfDoc.getPageCount()
 
     // Ensure upload directory exists
-    const uploadDir = join(process.cwd(), 'storage', 'uploads')
+    const uploadDir = getStorageDir('uploads')
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }
@@ -40,7 +43,7 @@ export async function POST(request: NextRequest) {
       data: {
         title: file.name,
         originalFileName: file.name,
-        filePath: `storage/uploads/${filename}`,
+        filePath: toStorageRelativePath('uploads', filename),
         fileSize: file.size,
         pageCount,
       },
