@@ -164,15 +164,15 @@ export default function DashboardPage() {
   )
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
       
       {/* ── Navigation Header ── */}
-      <nav className="border-b flex items-center justify-between px-8 py-4 bg-background">
+      <nav className="border-b bg-background/80 backdrop-blur-sm flex items-center justify-between px-6 sm:px-8 py-4 sticky top-0 z-50">
         <Link href="/">
           <DocToolKitLogo size="md" />
         </Link>
-        <div className="flex items-center gap-6">
-          <Link href="/#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link href="/#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block">
             Features
           </Link>
           <Link href="/dashboard" className="text-sm font-medium text-foreground transition-colors">
@@ -180,8 +180,8 @@ export default function DashboardPage() {
           </Link>
           <Button
             size="sm"
-            className="hover:opacity-90 text-white"
-            style={{ background: "#2563EB", border: "none" }}
+            className="hover:opacity-90 text-white shadow-md shadow-blue-500/20"
+            style={{ background: "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)", border: "none" }}
             onClick={() => document.getElementById('dashboard-file-input')?.click()}
           >
             <Upload className="mr-2 h-4 w-4" />
@@ -219,19 +219,19 @@ export default function DashboardPage() {
       </nav>
 
       {/* ── Main Workspace Content ── */}
-      <main className="flex-1 container mx-auto px-8 py-10">
+      <main className="flex-1 container mx-auto px-6 sm:px-8 py-8 sm:py-10">
         
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight">Dashboard</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground mt-2">Manage your PDF documents local-first</p>
           </div>
         </div>
 
         {/* Upload Area */}
-        <Card className="mb-8 border-dashed border-2 hover:border-muted-foreground/50 transition-colors">
+        <Card className="mb-8 border-2 border-dashed hover:border-blue-400/50 transition-all duration-300 bg-gradient-to-br from-background to-muted/30">
           <CardHeader>
-            <CardTitle>Upload PDF</CardTitle>
+            <CardTitle className="text-xl">Upload PDF</CardTitle>
             <CardDescription>Select a PDF file to upload and parse directly in your browser tab</CardDescription>
           </CardHeader>
           <CardContent>
@@ -244,9 +244,12 @@ export default function DashboardPage() {
                 disabled={uploading}
                 className="hidden"
               />
-              <div className="rounded-lg p-8 text-center bg-muted/30 hover:bg-muted/60 transition group">
-                <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4 group-hover:text-foreground transition-colors" />
-                <p className="text-lg font-medium mb-2">
+              <div className="rounded-xl p-8 sm:p-10 text-center bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20 hover:from-blue-100/50 hover:to-purple-100/50 dark:hover:from-blue-950/30 dark:hover:to-purple-950/30 transition-all duration-300 border border-blue-200/50 dark:border-blue-800/50">
+                <div className="relative inline-block mb-4">
+                  <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl animate-pulse"></div>
+                  <Upload className="relative h-14 w-14 text-blue-600 dark:text-blue-400" />
+                </div>
+                <p className="text-lg font-semibold mb-2 text-foreground">
                   {uploading ? 'Processing & Vectorizing...' : 'Click to upload PDF'}
                 </p>
                 <p className="text-sm text-muted-foreground">PDF formats only · Max limit 50MB</p>
@@ -256,14 +259,14 @@ export default function DashboardPage() {
         </Card>
 
         {/* Search and View Toggles */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search local documents..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-background border-muted-foreground/20 focus:border-blue-400"
             />
           </div>
           <div className="flex gap-2">
@@ -271,7 +274,8 @@ export default function DashboardPage() {
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="icon"
               onClick={() => setViewMode('grid')}
-              style={viewMode === 'grid' ? { backgroundColor: '#2563EB', color: '#fff' } : {}}
+              style={viewMode === 'grid' ? { background: "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)", border: "none" } : {}}
+              className="shadow-sm"
             >
               <Grid className="h-4 w-4" />
             </Button>
@@ -279,7 +283,8 @@ export default function DashboardPage() {
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="icon"
               onClick={() => setViewMode('list')}
-              style={viewMode === 'list' ? { backgroundColor: '#2563EB', color: '#fff' } : {}}
+              style={viewMode === 'list' ? { background: "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)", border: "none" } : {}}
+              className="shadow-sm"
             >
               <List className="h-4 w-4" />
             </Button>
@@ -289,24 +294,30 @@ export default function DashboardPage() {
         {/* Documents Content Loader */}
         {loading ? (
           <div className="text-center py-24 flex flex-col items-center justify-center gap-3">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-            <p className="text-sm text-muted-foreground">Reading storage index...</p>
+            <div className="relative">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500/20"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent absolute top-0 left-0"></div>
+            </div>
+            <p className="text-sm text-muted-foreground font-medium">Reading storage index...</p>
           </div>
         ) : filteredDocuments.length === 0 ? (
-          <div className="text-center py-24 border rounded-xl bg-muted/10">
-            <FileText className="mx-auto h-16 w-16 text-muted-foreground/60 mb-4" />
-            <p className="text-lg text-muted-foreground font-medium">No files indexable</p>
-            <p className="text-xs text-muted-foreground mt-1">Upload a PDF above to inspect or update text assets.</p>
+          <div className="text-center py-24 border-2 border-dashed rounded-2xl bg-gradient-to-br from-muted/20 to-muted/5">
+            <div className="relative inline-block mb-4">
+              <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-2xl"></div>
+              <FileText className="relative h-20 w-20 text-muted-foreground/40" />
+            </div>
+            <p className="text-lg text-muted-foreground font-medium">No documents yet</p>
+            <p className="text-sm text-muted-foreground mt-2">Upload a PDF above to get started</p>
           </div>
         ) : (
           viewMode === 'grid' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredDocuments.map((doc) => (
-                <Card key={doc.id} className="hover:shadow-md transition flex flex-col justify-between">
+                <Card key={doc.id} className="hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between bg-gradient-to-br from-background to-muted/30 border border-muted-foreground/10">
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between">
-                      <div className="p-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100">
-                        <FileText className="h-6 w-6" />
+                      <div className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 border border-blue-200/50 dark:border-blue-800/50 shadow-sm">
+                        <FileText className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                       </div>
                       <Button
                         variant="ghost"
@@ -317,10 +328,10 @@ export default function DashboardPage() {
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                    <CardTitle className="truncate mt-3 text-xl">{doc.title}</CardTitle>
-                    <CardDescription className="flex items-center gap-2 mt-1">
-                      <span>{doc.pageCount} pages</span>
-                      <span>•</span>
+                    <CardTitle className="truncate mt-4 text-lg font-semibold">{doc.title}</CardTitle>
+                    <CardDescription className="flex items-center gap-2 mt-2">
+                      <span className="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium">{doc.pageCount} pages</span>
+                      <span className="text-muted-foreground">•</span>
                       <span>{(doc.fileSize / 1024).toFixed(1)} KB</span>
                     </CardDescription>
                   </CardHeader>
@@ -328,7 +339,7 @@ export default function DashboardPage() {
                     <div className="flex gap-2">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button className="flex-1 text-white text-xs h-9" style={{ backgroundColor: '#2563EB' }}>
+                          <Button className="flex-1 text-white text-xs h-9 shadow-md shadow-blue-500/20" style={{ background: "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)", border: "none" }}>
                             Actions <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -337,7 +348,7 @@ export default function DashboardPage() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild>
                             <Link href={`/edit?file=${getFileParam(doc)}`} className="flex items-center gap-2 cursor-pointer">
-                              <FilePen className="h-3.5 w-3.5 text-indigo-600" /> Edit PDF (Doc Tool Kit)
+                              <FilePen className="h-3.5 w-3.5 text-indigo-600" /> Edit PDF
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
@@ -425,20 +436,26 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="border rounded-xl divide-y bg-background overflow-hidden">
+            <div className="border rounded-2xl divide-y bg-gradient-to-br from-background to-muted/30 overflow-hidden shadow-sm">
               {filteredDocuments.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between p-4 hover:bg-muted/40 transition">
+                <div key={doc.id} className="flex items-center justify-between p-4 hover:bg-muted/40 transition-all duration-200">
                   <div className="flex items-center gap-4 min-w-0 flex-1 pr-4">
-                    <FileText className="h-5 w-5 text-emerald-600 shrink-0" />
-                    <span className="font-medium text-sm truncate max-w-md">{doc.title}</span>
-                    <span className="text-xs text-muted-foreground hidden sm:inline">
-                      {doc.pageCount} pages · {(doc.fileSize / 1024).toFixed(1)} KB
-                    </span>
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 border border-blue-200/50 dark:border-blue-800/50 shrink-0">
+                      <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="font-medium text-sm truncate block">{doc.title}</span>
+                      <span className="text-xs text-muted-foreground inline-flex items-center gap-2 mt-1">
+                        <span className="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">{doc.pageCount} pages</span>
+                        <span>•</span>
+                        <span>{(doc.fileSize / 1024).toFixed(1)} KB</span>
+                      </span>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button size="sm" className="h-8 text-white text-xs gap-1" style={{ backgroundColor: '#2563EB' }}>
+                          <Button size="sm" className="h-8 text-white text-xs gap-1 shadow-md shadow-blue-500/20" style={{ background: "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)", border: "none" }}>
                             Actions <ChevronDown className="h-3 w-3" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -447,7 +464,7 @@ export default function DashboardPage() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem asChild>
                             <Link href={`/edit?file=${getFileParam(doc)}`} className="flex items-center gap-2 cursor-pointer">
-                              <FilePen className="h-3.5 w-3.5 text-indigo-600" /> Edit PDF (Sejda Engine)
+                              <FilePen className="h-3.5 w-3.5 text-indigo-600" /> Edit PDF
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
