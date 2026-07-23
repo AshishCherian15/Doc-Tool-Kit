@@ -11,12 +11,16 @@ Doc Tool Kit is designed as a practical Sejda/iLovePDF-style product with a loca
 This project is currently under active development with several known issues that need to be addressed before production use:
 
 ### Critical Issues
-- Missing `.env` file configuration (DATABASE_URL and other environment variables)
-- Database migrations need to be run
-- Storage directories need to be created
-- Build configuration masking TypeScript/ESLint errors
+- `DATABASE_URL` must be configured (PostgreSQL for production/Vercel)
+- Database migrations need to be run against your PostgreSQL instance
+- Build configuration currently skips TypeScript/ESLint checks during production builds
 - Authentication system exists but is not functional
-- Storage service incompatible with serverless deployment
+
+### Resolved Recently
+- Vercel build now runs `prisma generate` automatically
+- Database provider switched from SQLite to PostgreSQL for serverless deployment
+- Serverless file storage uses `/tmp` on Vercel via `src/lib/storage-paths.ts`
+- Storage workspace folders are tracked in git with `.gitkeep` placeholders
 
 ### Known Limitations
 - Some features are incomplete (Protect PDF, Redact PDF, Search)
@@ -86,7 +90,7 @@ Suggested captures:
 | Canvas editing | Fabric.js |
 | OCR | Tesseract.js |
 | State | Zustand |
-| Database | Prisma + SQLite |
+| Database | Prisma + PostgreSQL |
 | Validation | Zod |
 | Forms | React Hook Form |
 | Notifications | Sonner |
@@ -98,6 +102,7 @@ Suggested captures:
 ### Prerequisites
 - Node.js 18+ and npm
 - Git
+- PostgreSQL database (local Docker, Neon, Supabase, or Vercel Postgres)
 
 ### Initial Setup
 
@@ -118,7 +123,7 @@ cp .env.example .env
 ```
 Edit `.env` and configure your settings:
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://user:password@localhost:5432/doc_tool_kit?schema=public"
 NODE_ENV=development
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 MAX_FILE_SIZE=52428800
@@ -126,16 +131,11 @@ MAX_FILE_SIZE=52428800
 
 4. **Initialize the database**
 ```bash
-npx prisma generate
-npx prisma migrate dev
+npm run db:generate
+npm run db:migrate
 ```
 
-5. **Create storage directories**
-```bash
-mkdir -p storage/uploads storage/edited storage/exports storage/thumbnails storage/autosave storage/ocr
-```
-
-6. **Start the development server**
+5. **Start the development server**
 ```bash
 npm run dev
 ```
@@ -147,6 +147,15 @@ Open http://localhost:3000 in your browser.
 npm run build
 npm run start
 ```
+
+### Deploy to Vercel
+
+1. Import the GitHub repository into Vercel.
+2. Add `DATABASE_URL` in Vercel project settings (PostgreSQL connection string).
+3. Deploy — the build runs `scripts/vercel-build.mjs`, which executes:
+   - `prisma generate`
+   - `prisma migrate deploy` (when `DATABASE_URL` is set)
+   - `next build`
 
 ## Scripts
 
@@ -162,26 +171,61 @@ npm run db:generate
 ## Project Structure
 
 ```text
-src/
-  app/                    Next.js routes and API endpoints
-  components/branding/    Doc Tool Kit logo and brand UI
-  components/editor/      Canvas and PDF editing controls
-  components/layout/      Theme provider
-  components/ui/          Shared UI primitives
-  hooks/                  Autosave and command history hooks
-  lib/                    Prisma and utility helpers
-  services/               PDF and storage services
-  store/                  Zustand document editor stores
-  types/                  Shared TypeScript models
-prisma/                   Database schema and migrations
-storage/                  Local file workspace
-public/                   Icons and public assets
+Doc-Tool-Kit/
+├── public/                     Static assets (icons, images)
+├── prisma/
+│   ├── schema.prisma           Database models
+│   └── migrations/             PostgreSQL migrations
+├── scripts/
+│   └── vercel-build.mjs        Vercel build pipeline (Prisma + Next.js)
+├── src/
+│   ├── app/
+│   │   ├── api/                REST API routes
+│   │   │   ├── annotations/    Annotation CRUD
+│   │   │   ├── autosave/       Session and PDF autosave
+│   │   │   ├── documents/      Document listing and deletion
+│   │   │   ├── files/          PDF file streaming
+│   │   │   └── upload/         PDF upload handler
+│   │   ├── dashboard/          Document workspace
+│   │   ├── edit/               PDF editor
+│   │   ├── merge/              Merge PDF tool
+│   │   ├── split/              Split PDF tool
+│   │   └── ...                 Other PDF tool pages
+│   ├── components/
+│   │   ├── branding/           Logo and brand UI
+│   │   ├── editor/             Canvas and PDF editing controls
+│   │   ├── layout/             Theme provider and shell
+│   │   └── ui/                 Shared UI primitives
+│   ├── hooks/                  Autosave and command history hooks
+│   ├── lib/
+│   │   ├── prisma.ts           Prisma client singleton
+│   │   ├── storage-paths.ts    Local and Vercel storage paths
+│   │   └── utils.ts            Shared utilities
+│   ├── services/
+│   │   ├── pdfService.ts       PDF processing helpers
+│   │   └── storageService.ts   File storage helpers
+│   ├── store/                  Zustand document editor stores
+│   ├── types/                  Shared TypeScript models
+│   └── middleware.ts           Route middleware
+├── storage/
+│   ├── uploads/                Uploaded PDF files
+│   ├── edited/                 Edited PDF exports
+│   ├── exports/                Generated exports
+│   ├── thumbnails/             Document thumbnails
+│   ├── autosave/               Annotation session data
+│   └── ocr/                    OCR output cache
+├── .env.example                Environment variable template
+├── next.config.js              Next.js configuration
+├── package.json                Dependencies and scripts
+├── tailwind.config.js          Tailwind CSS theme
+├── tsconfig.json               TypeScript configuration
+└── vercel.json                 Vercel deployment settings
 ```
 
 ## Roadmap
 
 ### Immediate Priorities
-- Fix critical configuration issues (.env, database, storage)
+- Configure PostgreSQL `DATABASE_URL` for production deployments
 - Implement proper error handling and validation
 - Complete incomplete features (Protect PDF, Redact PDF, Search)
 - Add drag-and-drop file upload support

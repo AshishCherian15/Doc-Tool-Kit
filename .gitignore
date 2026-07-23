@@ -7,6 +7,9 @@ coverage/
 .env
 .env*.local
 
+.agents/
+Doc-Tool-Kit/
+
 prisma/dev.db
 prisma/dev.db-journal
 prisma/*.db
@@ -18,11 +21,11 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-storage/uploads/*
-storage/edited/*
-storage/exports/*
-storage/thumbnails/*
-storage/autosave/*
-storage/ocr/*
+storage/uploads/**
+storage/edited/**
+storage/exports/**
+storage/thumbnails/**
+storage/autosave/**
+storage/ocr/**
 
-!.gitkeep
+!storage/**/.gitkeep
